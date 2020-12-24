@@ -24,4 +24,10 @@ and prioritize your changes according to what you think is most useful.
 current state, can be deployed easily on Heroku's free tier.
 3. In your submission, share with us what changes you made and how you would prioritize changes if you had more time.
 
+## Documentation of changes done
+* Made search functionality case insensitive
+* The search results are not random text but will give 2 sentences containing the search text.
+* The results will highlight the search text
+* Added pagination support
+
 
