@@ -260,3 +260,36 @@ textarea {
     page-break-after: avoid;
   }
 }
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+table {
+  margin-top: 20px;
+  border-spacing: 10px;
+}
+
+td {
+  border: 1px solid;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.next, .prev {
+  display: none;
+  border: 1px solid;
+  border-radius: 8px;
+  padding: 5px 10px;
+  cursor: pointer;
+  margin: 0 5px;
+}

@@ -9,6 +9,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
+	"strconv"
+	"math"
 )
 
 func main() {
@@ -48,7 +51,13 @@ func handleSearch(searcher Searcher) func(w http.ResponseWriter, r *http.Request
 			w.Write([]byte("missing search query in URL params"))
 			return
 		}
-		results := searcher.Search(query[0])
+
+		page, ok := r.URL.Query()["p"]
+
+		if !ok {
+			page = []string{"1"}
+		}
+		results := searcher.Search(query[0], page[0])
 		buf := &bytes.Buffer{}
 		enc := json.NewEncoder(buf)
 		err := enc.Encode(results)
@@ -68,15 +77,30 @@ func (s *Searcher) Load(filename string) error {
 		return fmt.Errorf("Load: %w", err)
 	}
 	s.CompleteWorks = string(dat)
-	s.SuffixArray = suffixarray.New(dat)
+
+	// Convert data to lower case.
+	s.SuffixArray = suffixarray.New([]byte(strings.ToLower(string(dat))))
+
 	return nil
 }
 
-func (s *Searcher) Search(query string) []string {
-	idxs := s.SuffixArray.Lookup([]byte(query), -1)
+func (s *Searcher) Search(query string, page string) []string {
+
+	pageNo, err := strconv.Atoi(page)
+
+	if err != nil {
+		return []string{}
+	}
+	// Search with query in lowercase.
+	idxs := s.SuffixArray.Lookup([]byte(strings.ToLower(query)), 20 * pageNo)
 	results := []string{}
-	for _, idx := range idxs {
-		results = append(results, s.CompleteWorks[idx-250:idx+250])
+	for _, idx := range idxs[20 * (pageNo - 1):int(math.Min(float64(20 * pageNo), float64(len(idxs))))] {
+		// Show 2 sentences with that query, not random words.
+		var offsetFirst = strings.LastIndex(s.CompleteWorks[:idx], ".")
+		var offsetMid = strings.Index(s.CompleteWorks[idx:], ".")
+		var offsetLast = strings.Index(s.CompleteWorks[idx + offsetMid + 1:], ".")
+
+		results = append(results, s.CompleteWorks[offsetFirst + 2:idx + offsetMid + offsetLast + 2])
 	}
 	return results
 }
