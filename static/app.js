@@ -35,6 +35,13 @@ const Controller = {
     const prev = document.querySelector(".prev");
     const next = document.querySelector(".next");
 
+    if (results.length <= 0) {
+      table.innerHTML = "<tr><td>Oops! No results found. Please try again.</td></tr>";
+      prev.style.display = "none";
+      next.style.display = "none";
+      return
+    }
+
     if (Controller.page == 1) {
       prev.style.display = "none";
     } else if (Controller.page > 1) {
